@@ -6,6 +6,11 @@ fmt:
     alejandra .
     golangci-lint run --fix ./...
 
-# Run project locally
 run:
     go run cmd/main/main.go
+
+worker:
+    go run cmd/worker/main.go
+
+temporal-up:
+    temporal server start-dev
