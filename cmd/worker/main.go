@@ -23,6 +23,7 @@ func main() {
     w.RegisterActivity(internal.Withdraw)
     w.RegisterActivity(internal.Deposit)
     w.RegisterActivity(internal.Refund)
+	w.RegisterActivity(internal.Explain)
 
     // Start listening to the Task Queue.
     err = w.Run(worker.InterruptCh())
@@ -30,4 +31,3 @@ func main() {
         log.Fatalln("unable to start Worker", err)
     }
 }
-

@@ -28,7 +28,7 @@ func NewLLMService(ctx context.Context) (*LLMService, error) {
 	}
 
 	return &LLMService{
-		Model: "gemini-2.5-flash",
+		Model: "gemini-2.0-flash",
 		Client: client,
 	}, nil
 }

@@ -30,27 +30,27 @@ func MoneyTransfer(ctx workflow.Context, input PaymentDetails) (string, error) {
     // Apply the options.
     ctx = workflow.WithActivityOptions(ctx, options)
 
+	var explainOutput string
+	explainErr := workflow.ExecuteActivity(ctx, Explain, input).Get(ctx, &explainOutput)
+	if explainErr != nil {
+		return "", explainErr
+	}
+
     // Withdraw money.
     var withdrawOutput string
-
     withdrawErr := workflow.ExecuteActivity(ctx, Withdraw, input).Get(ctx, &withdrawOutput)
-
     if withdrawErr != nil {
         return "", withdrawErr
     }
 
     // Deposit money.
     var depositOutput string
-
     depositErr := workflow.ExecuteActivity(ctx, Deposit, input).Get(ctx, &depositOutput)
 
     if depositErr != nil {
         // The deposit failed; put money back in original account.
-
         var result string
-
         refundErr := workflow.ExecuteActivity(ctx, Refund, input).Get(ctx, &result)
-
         if refundErr != nil {
             return "",
                 fmt.Errorf("Deposit: failed to deposit money into %v: %v. Money could not be returned to %v: %w",
@@ -61,6 +61,10 @@ func MoneyTransfer(ctx workflow.Context, input PaymentDetails) (string, error) {
             input.TargetAccount, input.SourceAccount, depositErr)
     }
 
-    result := fmt.Sprintf("Transfer complete (transaction IDs: %s, %s)", withdrawOutput, depositOutput)
+	result := fmt.Sprintf("Transfer complete (transaction IDs: %s, %s) %s",
+		withdrawOutput,
+		depositOutput,
+		explainOutput,
+	)
     return result, nil
 }

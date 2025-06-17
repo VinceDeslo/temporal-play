@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 )
@@ -42,4 +43,25 @@ func Refund(ctx context.Context, data PaymentDetails) (string, error) {
     bank := BankingService{"bank-api.example.com"}
     confirmation, err := bank.Deposit(data.SourceAccount, data.Amount, referenceID)
     return confirmation, err
+}
+
+func Explain(ctx context.Context, data PaymentDetails) (string, error) {
+	log.Printf("Requiring payment details explanation from llm.\n\n")
+
+	llm, err := NewLLMService(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	prompt := fmt.Sprintf("Explain in text only human readable format the transaction described by the following data: %s", string(bytes))
+
+	result, err := llm.Prompt(ctx, prompt)
+	if err != nil {
+		return "", err
+	}
+	return result, err	
 }
